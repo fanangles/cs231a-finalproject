@@ -1,40 +1,42 @@
-import sys
+#import sys
 
 #sys.path.append('/usr/local/lib/python2.7/site-packages')
 
 import cv2
-import numpy as np;
- 
-import cv2
-import numpy as np;
+import numpy as np
 
 # Read image
-# Change file path as needed
-im = cv2.imread("TrainSmall2/Train/41.jpg", cv2.IMREAD_GRAYSCALE)
+imname = "Train/41.jpg"
+im = cv2.imread(imname, cv2.IMREAD_GRAYSCALE)
 
-# Setup SimpleBlobDetector parameters.
+# Setup SimpleBlobDetector parameters
 params = cv2.SimpleBlobDetector_Params()
 
 # Change thresholds
-params.minThreshold = 10
-params.maxThreshold = 200
+params.minThreshold = 50
+params.maxThreshold = 150
 
+params.filterByColor = False
 
-# Filter by Area.
+# Filter by Area
 params.filterByArea = True
-params.minArea = 1500
+params.minArea = 200
+params.maxArea = 4000
 
 # Filter by Circularity
 params.filterByCircularity = True
-params.minCircularity = 0.1
+params.minCircularity = 0.2
+params.maxCircularity = 0.8
 
 # Filter by Convexity
 params.filterByConvexity = True
-params.minConvexity = 0.87
-    
+params.minConvexity = 0.5
+params.maxConvexity = 1.0
+
 # Filter by Inertia
 params.filterByInertia = True
-params.minInertiaRatio = 0.01
+params.minInertiaRatio = 0.1
+params.maxInertiaRatio = 0.4
 
 # Create a detector with the parameters
 ver = (cv2.__version__).split('.')
@@ -43,16 +45,19 @@ if int(ver[0]) < 3 :
 else : 
 	detector = cv2.SimpleBlobDetector_create(params)
 
-
 # Detect blobs.
 keypoints = detector.detect(im)
 
 # Draw detected blobs as red circles.
 # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures
 # the size of the circle corresponds to the size of blob
-
 im_with_keypoints = cv2.drawKeypoints(im, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
+# Save result
+cv2.imwrite("result.jpg", im_with_keypoints)
+
 # Show blobs
-cv2.imshow("Keypoints", im_with_keypoints)
+cv2.namedWindow(imname, cv2.WINDOW_NORMAL)
+cv2.imshow(imname, im_with_keypoints)
 cv2.waitKey(0)
+
