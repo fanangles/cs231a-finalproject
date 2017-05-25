@@ -6,7 +6,8 @@ import numpy as np
 import os
 import skimage.feature
 import matplotlib.pyplot as plt
-
+import imutils
+import skimage
 
 templates = ['brown.png', 'purple.png', 'green.png', 'red.png', 'blue.png']
 methods = [
@@ -16,13 +17,18 @@ methods = [
 
 def templateMatch(image, template):
 	sealion = cv2.imread('copy/' + template)
-	w, h = sealion.shape[1], sealion.shape[0]
-	method = eval('cv2.TM_CCOEFF_NORMED')
-	res = cv2.matchTemplate(image, sealion, method)
-	threshold = 0.8
-	loc = np.where( res >= threshold)
-	for pt in zip(*loc[::-1]):
-		cv2.rectangle(image,pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+	for angle in [0, 45, 90]:
+		sealion_rot = imutils.rotate_bound(sealion, angle)
+		w, h = sealion_rot.shape[1], sealion_rot.shape[0]
+		sealion_noise = skimage.util.random_noise(sealion_rot, mode='gaussian')
+		'''
+		method = eval('cv2.TM_CCOEFF_NORMED')
+		res = cv2.matchTemplate(image, sealion, method)
+		threshold = 0.8
+		loc = np.where( res >= threshold)
+		for pt in zip(*loc[::-1]):
+			cv2.rectangle(image,pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
+		'''
 	'''
 	plt.figure(figsize=(12,8))
 	plt.subplot(121)
@@ -42,7 +48,7 @@ TRAINDOTDIR = os.path.join('TrainSmall2', 'TrainDotted')
 OUTPUTDIR = 'results/'
 
 # Add values to evaluate more training images
-train_ids = range(41, 51)
+train_ids = [41]
 
 for i in train_ids: 
 	imname_train = os.path.join(TRAINDIR, str(i) + ".jpg")
