@@ -1,13 +1,15 @@
 import sys
-#sys.path.append('/usr/local/lib/python2.7/site-packages')
+sys.path.append('/usr/local/lib/python2.7/site-packages')
 
 import cv2
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import threading
 
-TRAINDIR = 'Train'
-TEMPLATEDIR = 'templates2'
+
+TRAINDIR = 'TrainSmall2/Train'
+TEMPLATEDIR = 'templates'
 OUTPUTDIR = 'Predicted_template'
 
 def templateMatch(image, template, threshold):
@@ -48,21 +50,28 @@ def templateMatch(image, template, threshold):
 
 
 # Add values to evaluate more training images
-train_ids = [48]
+train_ids = [41]
 #templates = ["t1.jpg", "t0.jpg", "t2.jpg", "t3.jpg", "t6.jpg", "t7.jpg", "t9.jpg"]
 #thresholds = [0.75, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]
-templates = ["f4.jpg", "f2.jpg", "f6.jpg", "f7.jpg", "f1.jpg", "f5.jpg"]
-thresholds = [0.7, 0.5, 0.67, 0.65, 0.5, 0.6]
+templates = ["g4.png", "g2.png", "g6.png", "g7.png", "g1.png", "g5.png"]
+thresholds = [0.75, 0.75, 0.75, 0.75, 0.75, 0.75]
 
 for i in train_ids: 
         imname_train = os.path.join(TRAINDIR, str(i) + ".jpg")
         im_train = cv2.imread(imname_train)
 	#threshold = 0.7 #0.75
-
+        
+        # Threaded version
+        threads = [threading.Thread(target=templateMatch, args=(im_train, template, threshold)) for template, threshold in zip(templates, thresholds)]
+        for thread in threads:
+                thread.start()
+        for thread in threads:
+                thread.join()
+        '''
         for template, threshold in zip(templates, thresholds):#os.listdir(TEMPLATEDIR):
                 #im_train = cv2.imread(imname_train)
                 templateMatch(im_train, template, threshold)
                 #threshold = 0.65 #0.7
                 #cv2.imwrite(os.path.join(OUTPUTDIR, template), im_train)
-
+        '''
         cv2.imwrite(os.path.join(OUTPUTDIR, str(i) + "f.jpg"), im_train)
